@@ -8,8 +8,13 @@ Each file is a ready-to-use starting point — copy it into your project root as
 
 | File | Use for |
 |------|---------|
-| [CLAUDE-general.md](CLAUDE-general.md) | Any project — base conventions and git rules |
+| [CLAUDE-general.md](CLAUDE-general.md) | Any project — base conventions, secrets, git, and how to measure a change |
 | [CLAUDE-frontend.md](CLAUDE-frontend.md) | React / Next.js / Vite + TanStack + Tailwind |
+| [CLAUDE-backend-node.md](CLAUDE-backend-node.md) | Fastify + TypeScript + Postgres (Kysely), one file per endpoint |
+| [CLAUDE-react-native.md](CLAUDE-react-native.md) | Expo / React Native + Expo Router + TanStack Query |
+
+`CLAUDE-general.md` is meant to be combined with one of the others: keep it at the repo root and put
+the stack-specific file next to the app it describes (`backend/CLAUDE.md`, `apps/mobile/CLAUDE.md`).
 
 ## Updates
 

@@ -25,23 +25,33 @@ Each product feature owns its HTTP endpoints, SQL and services under `src/featur
 What is NOT a feature (shared infrastructure, the DB core) stays put.
 
 ```
-src/
-  server.ts              # entry: one API instance — migrations under a lock, listen, drain on SIGTERM
-  worker.ts              # entry: the background worker (minute tick, exports, purges)
-  app.ts                 # buildApp(): plugins, auth gate, error handler, feature registration
-  feature/<name>/        # ONE FEATURE = api + db + lib
-    api/                 #   HTTP layer — ONE FILE PER ENDPOINT + an index.ts barrel
-    db/                  #   the feature's queries — ONE QUERY PER FILE + index.ts + shared.ts
-    lib/                 #   the feature's services (events, builders, guards)
-  shared/                # cross-cutting services every feature may use
-    api/                 #   platform endpoints (config, media, ws)
-    db/                  #   queries and SQL fragments no single feature owns
-  db/                    # DB core — stays central (one database, one schema)
-    pool.ts, kysely.ts, config.ts, schema.sql, migrate.ts + migrations/
-    generated/           #   kysely-codegen output — never edit by hand
-    seeds/, scripts/     #   seed data + one-shot CLI runners
-  test/{unit,integration}/
+backend/
+  src/
+    server.ts              # entry: one API instance — migrations under a lock, listen, drain on SIGTERM
+    worker.ts              # entry: the background worker
+    worker/tick.ts         #   the periodic tick itself, one step per concern
+    lifecycle.ts, boot.ts  # graceful shutdown; migrations + seeds under the boot lock
+    app.ts                 # buildApp(): plugins, auth gate, error handler, feature registration
+    types.ts               # shared domain types
+    schemas/               # TypeBox fragments reused across routes (common.ts)
+    feature/<name>/        # ONE FEATURE = api + db + lib
+      api/                 #   HTTP layer — ONE FILE PER ENDPOINT + an index.ts barrel
+      db/                  #   the feature's queries — ONE QUERY PER FILE + index.ts + shared.ts
+      lib/                 #   the feature's services (events, builders, guards)
+    shared/                # cross-cutting services every feature may use
+      api/                 #   platform endpoints (config, media, ws)
+      bus/                 #   the cross-instance event bus and its handlers
+      db/                  #   queries and SQL fragments no single feature owns
+    db/                    # DB core — stays central (one database, one schema)
+      pool.ts, kysely.ts, config.ts, schema.sql, migrate.ts + migrations/
+      generated/           #   codegen output — never edit by hand
+      seeds/, scripts/     #   seed data + one-shot CLI runners
+  test/{unit,integration}/ # NOT under src/: the vitest config points here
 ```
+
+A second HTTP surface (an admin API) is its own entry point and its own process on its own port,
+not a prefix inside the public one: it has a different auth model and must not share a rate limit,
+a drain or a restart with the app.
 
 **URLs do not come from folders.** Every route file registers its FULL path itself
 (`app.get('/me/export', …)`) and `app.ts` mounts every feature barrel under a version prefix — so

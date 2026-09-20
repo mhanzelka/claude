@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { PanelRight } from 'lucide-react'
+import { LoaderCircle, PanelRight } from 'lucide-react'
 import { Constants } from '../../../constants'
 import { AskDialog } from '../../../shared/components/AskDialog'
 import { Toast } from '../../../shared/components/Toast'
@@ -40,22 +40,36 @@ export const RoundPage = () => {
 
   const round = data?.round
   const answers = useMemo(() => data?.answers ?? {}, [data])
+  const submitted = !!data?.submitted
+
+  // Where the cursor sits counts as an answer for the purpose of dependencies, so a later
+  // question appears or disappears the moment an option is highlighted — without anything
+  // being sent, because highlighting is not answering.
+  const [draft, setDraft] = useState<Record<string, string[]>>({})
+  const effective = useMemo(() => {
+    const merged: Record<string, Answer> = { ...answers }
+    for (const [qid, chosen] of Object.entries(draft)) {
+      merged[qid] = { ...emptyAnswer(), ...answers[qid], chosen }
+    }
+    return merged
+  }, [answers, draft])
+
   const visible = useMemo(
-    () => visibleQuestions({ questions: round?.questions ?? [], answers }),
-    [round, answers],
+    () => visibleQuestions({ questions: round?.questions ?? [], answers: effective }),
+    [round, effective],
   )
   // Recomputed from the answers on every change, so an early answer that invalidates a later
   // one is caught the moment it happens rather than at the end of the round.
   const stale = useMemo(
-    () => staleAnswers({ questions: round?.questions ?? [], answers }).map((item) => item.question.id),
-    [round, answers],
+    () => staleAnswers({ questions: round?.questions ?? [], answers: effective }).map((item) => item.question.id),
+    [round, effective],
   )
   const working = data?.working ?? []
   const question = visible[Math.min(current, Math.max(0, visible.length - 1))]
   const answer = question ? answers[question.id] : undefined
   const options = useMemo(
-    () => (question ? optionsOf({ question, answers }) : []),
-    [question, answers],
+    () => (question ? optionsOf({ question, answers: effective }) : []),
+    [question, effective],
   )
 
   // A fresh question starts on whatever was chosen last time, not on the first row.
@@ -88,16 +102,28 @@ export const RoundPage = () => {
   // Selecting is not answering: it moves the cursor and nothing leaves the page. Only
   // Confirm sends, so a cursor passing over an option never reaches the assistant.
   const pick = (index: number) => {
+    if (submitted || !question) return
     setSelected(index)
     const option = options[index]
-    if (!option || option.other || !question?.multi) return
-    const next = new Set(pending)
-    next.has(option.id) ? next.delete(option.id) : next.add(option.id)
-    setPending(next)
+    if (!option) return
+    if (option.other) {
+      setDraft((current) => ({ ...current, [question.id]: [] }))
+      return
+    }
+    if (question.multi) {
+      const next = new Set(pending)
+      next.has(option.id) ? next.delete(option.id) : next.add(option.id)
+      setPending(next)
+      setDraft((current) => ({ ...current, [question.id]: [...next] }))
+      return
+    }
+    setDraft((current) => ({ ...current, [question.id]: [option.id] }))
   }
 
+  const isLast = visible.length > 0 && current === visible.length - 1
+
   const confirm = () => {
-    if (!question) return
+    if (!question || submitted) return
     const option = options[selected]
     const chosen = option?.other ? [] : question.multi ? [...pending] : option ? [option.id] : []
     const stored = answers[question.id]
@@ -106,6 +132,11 @@ export const RoundPage = () => {
       return
     }
     save({ chosen, other: option?.other ? stored?.other ?? null : null, unclear: false })
+    setDraft(({ [question.id]: _dropped, ...rest }) => rest)
+    if (isLast) {
+      void done()
+      return
+    }
     const next = visible.findIndex((item, index) => index > current && !isAnswered(answers[item.id]))
     goTo(next >= 0 ? next : current + 1)
   }
@@ -147,7 +178,7 @@ export const RoundPage = () => {
   }
 
   useKeyboard({
-    enabled: !dialog.isOpen,
+    enabled: !dialog.isOpen && !submitted,
     optionCount: options.length,
     multi: !!question?.multi,
     onMove: (delta) => setSelected((value) => (options.length ? (value + delta + options.length) % options.length : 0)),
@@ -195,6 +226,12 @@ export const RoundPage = () => {
             currentId={question?.id}
             onGo={goTo}
           />
+          {submitted && (
+            <p className="mb-2.5 flex items-center gap-2 rounded-lg border border-accent bg-accent-soft px-3 py-2 text-[13px]">
+              <LoaderCircle size={13} className="shrink-0 animate-spin text-accent" aria-hidden />
+              Handed over. Anything new appears right here — leave this window open.
+            </p>
+          )}
           {question ? (
             <QuestionCard
               question={question}
@@ -206,6 +243,8 @@ export const RoundPage = () => {
               writtenIn={round?.written_by?.[question.id]}
               showDetail={showDetail}
               sketchOpen={sketchOpen}
+              isLast={isLast}
+              disabled={submitted}
               onPick={pick}
               onOther={(value) => save({ other: value || null, chosen: [] })}
               onNote={(value) => save({ note: value })}

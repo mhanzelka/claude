@@ -188,6 +188,7 @@ def make_handler(d: Path, hub: Hub, stop: threading.Event):
                 "round": read_json(d / "round.json", {}),
                 "answers": read_json(d / "answers.json", {}),
                 "working": read_json(d / "working.json", []),
+                "submitted": read_json(d / "submitted.json", False),
             }
 
         def do_GET(self):  # noqa: N802
@@ -240,6 +241,10 @@ def make_handler(d: Path, hub: Hub, stop: threading.Event):
                 # The page shows a question as busy from the moment it is handed back until a
                 # push touches it again, so nobody stares at options that are being rewritten.
                 qid = body.get("qid")
+                # Handing the round over freezes the page until the assistant pushes
+                # something new into it — the same window is reused, never a second one.
+                if body.get("type") == "done":
+                    write_json(d / "submitted.json", True)
                 if body.get("type") in ("explain", "rejected") and qid:
                     working = read_json(d / "working.json", [])
                     if qid not in working:
@@ -318,6 +323,7 @@ def cmd_serve(args) -> int:
     if args.fresh:
         write_json(d / "answers.json", {})
         write_json(d / "working.json", [])
+        write_json(d / "submitted.json", False)
         (d / "events.jsonl").unlink(missing_ok=True)
     if not (WEB / "index.html").is_file():
         print("ask: web/ is missing — run `npm install && npm run build` in ui/", file=sys.stderr)
@@ -353,6 +359,9 @@ def cmd_push(args) -> int:
     if touched:
         working = [qid for qid in read_json(d / "working.json", []) if qid not in touched]
         write_json(d / "working.json", working)
+        # New questions or a fresh explanation reopen a handed-over round in place.
+        # A push carrying only `written` does not, since it asks for nothing.
+        write_json(d / "submitted.json", False)
     port = running_port(d)
     live = post(port, "/api/refresh") if port else False
     print(json.dumps({"pushed": True, "live": live}, ensure_ascii=False))

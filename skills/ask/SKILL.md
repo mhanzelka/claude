@@ -41,8 +41,14 @@ All of them take `--session <name>`; use one name per round.
 3.  run `wait` IN THE BACKGROUND           → you are woken when something happens
 4.  act on the event, `push` if needed
 5.  go back to 3 until the `done` event
-6.  `close`
+6.  write up the answers, `push` what you wrote
+7.  more to ask? `push` the next round INTO THE SAME SESSION — never a second window
+8.  `close` only when there is nothing left to ask
 ```
+
+**One window per conversation, not per round.** Handing the round over freezes the page;
+the next `push` carrying questions or notes thaws it in place. Opening a second session
+means the human loses everything they can see — what they answered and what it turned into.
 
 `wait` and `serve` both belong in the background: `serve` has to outlive the command that
 started it, and a backgrounded `wait` wakes you when the event arrives, so there is no
@@ -69,7 +75,7 @@ particular answer change.
 | `answered` / `changed` | one answer was given or edited | nothing, unless it changes a later question |
 | `explain` | they do not follow a question; `text` says what is unclear, or is empty for all of it | write the explanation and `push` it into `notes` |
 | `rejected` | the option set itself is wrong; `text` is how they would put it | reshape that question and `push` it |
-| `done` | the round is handed over | read `answers`, then `close` |
+| `done` | the round is handed over; the page freezes | read `answers`, write them up, then either push the next round into the same session or `close` |
 
 `changed` on a question you have already written up is the one to watch: the page warns
 them, but you are the one who has to go back and rewrite it.
@@ -175,5 +181,6 @@ do not skim past it.
   the explanation, and leave the options alone unless the explanation changes them.
 - **`rejected` means your options were wrong.** Reshape the question around what they said
   rather than defending the set you wrote.
-- **Never `close` before the `done` event**, unless they say to stop.
+- **Never `close` before the `done` event**, unless they say to stop — and after it, only
+  when you have nothing more to ask. A follow-up round belongs in the same window.
 - **Twenty questions is the ceiling**, and it is a ceiling, not a target.

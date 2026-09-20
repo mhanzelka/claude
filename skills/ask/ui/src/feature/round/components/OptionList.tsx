@@ -8,6 +8,7 @@ export type OptionListProps = {
   answer: Answer | undefined
   selected: number
   pending: Set<string>
+  disabled: boolean
   onPick: (index: number) => void
 }
 
@@ -16,7 +17,15 @@ const isChosen = (option: ShownOption, question: Question, answer: Answer | unde
   return question.multi ? pending.has(option.id) : !!answer?.chosen.includes(option.id)
 }
 
-export const OptionList = ({ question, options, answer, selected, pending, onPick }: OptionListProps) => (
+export const OptionList = ({
+  question,
+  options,
+  answer,
+  selected,
+  pending,
+  disabled,
+  onPick,
+}: OptionListProps) => (
   <div className="flex flex-col gap-1">
     {options.map((option, index) => (
       <OptionRow
@@ -26,6 +35,7 @@ export const OptionList = ({ question, options, answer, selected, pending, onPic
         selected={index === selected}
         chosen={isChosen(option, question, answer, pending)}
         isGuess={question.recommend === option.id}
+        disabled={disabled}
         onPick={() => onPick(index)}
       />
     ))}

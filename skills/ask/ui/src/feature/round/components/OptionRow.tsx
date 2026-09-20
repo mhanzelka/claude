@@ -9,16 +9,27 @@ export type OptionRowProps = {
   selected: boolean
   chosen: boolean
   isGuess: boolean
+  disabled: boolean
   onPick: () => void
 }
 
-export const OptionRow = ({ option, index, selected, chosen, isGuess, onPick }: OptionRowProps) => (
+export const OptionRow = ({
+  option,
+  index,
+  selected,
+  chosen,
+  isGuess,
+  disabled,
+  onPick,
+}: OptionRowProps) => (
   <button
     data-selected={selected}
+    disabled={disabled}
     onClick={onPick}
     className={clsx(
       'flex gap-2.5 rounded-lg border border-line bg-bg px-2.5 py-1.5 text-left text-sm',
       'hover:border-accent selected:border-accent selected:bg-accent-soft',
+      'disabled:opacity-50 disabled:hover:border-line',
     )}
   >
     <span className="shrink-0 pt-px font-mono text-xs text-dim">

@@ -99,6 +99,8 @@ export type RoundState = {
   answers: Record<string, Answer>
   /** Question ids the assistant is currently reworking. */
   working?: string[]
+  /** The round has been handed over; the page is frozen until something new is pushed. */
+  submitted?: boolean
 }
 
 export type EventKind = 'explain' | 'rejected' | 'done'

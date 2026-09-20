@@ -21,6 +21,9 @@ export type QuestionCardProps = {
   writtenIn: string | undefined
   showDetail: boolean
   sketchOpen: boolean
+  isLast: boolean
+  /** The round is handed over; nothing can be changed until something new is pushed. */
+  disabled: boolean
   onPick: (index: number) => void
   onOther: (value: string) => void
   onNote: (value: string) => void
@@ -44,6 +47,8 @@ export const QuestionCard = ({
   writtenIn,
   showDetail,
   sketchOpen,
+  isLast,
+  disabled,
   onPick,
   onOther,
   onNote,
@@ -75,6 +80,7 @@ export const QuestionCard = ({
           answer={answer}
           selected={selected}
           pending={pending}
+          disabled={disabled}
           onPick={onPick}
         />
         {withDetail && option && (
@@ -85,6 +91,7 @@ export const QuestionCard = ({
                 hint={question.other_hint ?? 'None of the options is it — put it your own way'}
                 value={answer?.other ?? ''}
                 resetKey={question.id}
+                disabled={disabled}
                 onCommit={onOther}
               />
             ) : (
@@ -100,12 +107,15 @@ export const QuestionCard = ({
           value={answer?.note ?? ''}
           placeholder={question.note_hint ?? 'anything that qualifies the answer'}
           resetKey={question.id}
+          disabled={disabled}
           onCommit={onNote}
         />
         {sketchOpen && <SketchPad scopeKey={question.id} onChange={onSketch} onAskLabel={onAskLabel} />}
         <ActionBar
           certainty={answer?.confidence ?? 'firm'}
           sketchOpen={sketchOpen}
+          isLast={isLast}
+          disabled={disabled}
           onConfirm={onConfirm}
           onExplain={onExplain}
           onNone={onNone}

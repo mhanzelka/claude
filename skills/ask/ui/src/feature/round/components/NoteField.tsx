@@ -8,10 +8,11 @@ export type NoteFieldProps = {
   placeholder: string
   /** Changing this reloads the field; a saved value coming back must not. */
   resetKey: string
+  disabled: boolean
   onCommit: (value: string) => void
 }
 
-export const NoteField = ({ id, value, placeholder, resetKey, onCommit }: NoteFieldProps) => {
+export const NoteField = ({ id, value, placeholder, resetKey, disabled, onCommit }: NoteFieldProps) => {
   const { schedule, flush } = useDebouncedCallback(onCommit, Constants.TEXT_SAVE_DEBOUNCE_MS)
   const [text, setText] = useState(value)
 
@@ -34,7 +35,8 @@ export const NoteField = ({ id, value, placeholder, resetKey, onCommit }: NoteFi
           schedule(event.target.value)
         }}
         onBlur={(event) => flush(event.target.value)}
-        className="w-full resize-y rounded-lg border border-line bg-bg px-2.5 py-1.5 text-sm outline-none focus:border-transparent focus:outline-2 focus:outline-accent focus:-outline-offset-1"
+        disabled={disabled}
+        className="w-full resize-y rounded-lg border border-line bg-bg px-2.5 py-1.5 text-sm outline-none focus:border-transparent focus:outline-2 focus:outline-accent focus:-outline-offset-1 disabled:opacity-50"
       />
     </div>
   )

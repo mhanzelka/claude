@@ -1,0 +1,171 @@
+{
+  "title": "Zóny — kolo 2",
+  "questions": [
+    {
+      "id": "tvar",
+      "header": "tvar zóny",
+      "text": "Odkud se bere tvar zóny?",
+      "detail": "Zóna je oblast nebo objem, který něco reprezentuje — místnost, vlastnictví pozemku, nebo trigger při vstupu. Tahle otázka rozhoduje, jestli ten tvar někdo řekne, nebo jestli se spočítá z toho, co prostor uzavírá.",
+      "recommend": "oboji",
+      "recommend_why": "Samo odvození je čistší, ale pozemek bez plotu a práh dveří by z něj vypadly — a oboje jsi jmenoval jako to, co zóna má umět.",
+      "options": [
+        {
+          "id": "oboji",
+          "label": "Obojí",
+          "desc": "Zóna má buď výslovný objem, nebo se spočítá rozlitím uvnitř uzavřeného tvaru — touž technikou, kterou ADR-122 používá na plášť.",
+          "opens": "Místnost se nikde nekreslí ručně a platí to i pro stavbu, kterou postaví hráč. Pozemek a práh dveří se za to řeknou kvádrem.",
+          "costs": "Dva způsoby, jak zóna vzniká.",
+          "rewrites": "Nic — ADR-122 zůstává, jen se jeho technika použije i jinde.",
+          "preview": "zóna „kuchyň\"     tvar = rozlití mezi stěnami   (jako ADR-122)\nzóna „pozemek 14\"  tvar = kvádr, řekl ho generátor\nzóna „práh dveří\"  tvar = kvádr, malý, trigger\n\nna zóně visí to, co dřív nesla Room:\n  purpose · capacity · access · owner",
+          "unsure": "Nevím, co se má stát, když hráč zboří zeď a tvar přestane být uzavřený."
+        },
+        {
+          "id": "vyslovny",
+          "label": "Vždy výslovný objem",
+          "desc": "Zóna je vždycky kvádr, který někdo řekl — generátor při zakládání města (ADR-045), později hráč při stavbě.",
+          "opens": "Jeden mechanismus, tvar se nemění pod rukama.",
+          "costs": "Při stavbě hráčem by zóny musel někdo vyměřit — a přesně tomu ses u ADR-122 bránil.",
+          "preview": "každá zóna:  { x, y, z, šířka, hloubka, výška }\n\nsporné místo:\n  hráč postaví příčku a rozdělí pokoj na dva\n  → zóna se nerozdělí sama"
+        },
+        {
+          "id": "odvozeny",
+          "label": "Vždy odvozený z tvaru",
+          "desc": "Zóna vždycky vzniká rozlitím uvnitř uzavřeného tvaru; nic se nezaškrtává ani nevyměřuje.",
+          "opens": "Nejdůslednější a přesně v duchu ADR-122.",
+          "costs": "Pozemek venku by se musel ohradit a trigger na práh dveří nejde vůbec — práh nic neuzavírá.",
+          "preview": "funguje:   místnost, byt, dvůr s plotem\nnefunguje: pozemek bez plotu\n           práh dveří (trigger)\n           „okolí studny\" — nic to neuzavírá",
+          "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 380 150' width='380' height='150'><rect x='10' y='20' width='150' height='110' fill='none' stroke='#8a5a2b' stroke-width='2'/><text x='16' y='16' font-family='monospace' font-size='11' fill='#8a5a2b'>uzavřený tvar → zóna</text><rect x='220' y='20' width='150' height='110' fill='none' stroke='#9a3b2f' stroke-width='2' stroke-dasharray='6 5'/><text x='226' y='16' font-family='monospace' font-size='11' fill='#9a3b2f'>pozemek bez plotu → nic</text></svg>"
+        }
+      ]
+    },
+    {
+      "id": "prekryv",
+      "header": "při překryvu",
+      "text": "Která zóna vyhrává u přístupu (ADR-050) a u vlastnictví (ADR-049)?",
+      "detail": "Zóny se smí překrývat, takže postavička je v několika naráz. Bez tohohle pravidla se ADR-049 ani ADR-050 nedají vyhodnotit.",
+      "options": [
+        {
+          "id": "nejtesnejsi",
+          "label": "Nejtěsnější",
+          "desc": "Rozhoduje zóna s nejmenším objemem, která ten bod obsahuje — u přístupu i u vlastnictví stejně.",
+          "opens": "Je to táž věta, kterou už říká ADR-139 („nejbližší vzhůru\"), jen přeložená do geometrie.",
+          "costs": "Obchod v přízemí paneláku je veřejný, i když je panelák soukromý.",
+          "preview": "Anna stojí v kuchyni:\n  zóna kuchyň      48 m³   ← vyhrává\n  zóna byt 3A     160 m³\n  zóna panelák   4800 m³\n  zóna pozemek   9000 m³\n\n→ kuchyň access nemá, takže platí byt: invited"
+        },
+        {
+          "id": "prisnost",
+          "label": "Přístup nejpřísnější, vlastnictví nejtěsnější",
+          "desc": "U vstupu vyhrává nejpřísnější zóna (private > invited > public), u vlastnictví nejtěsnější.",
+          "opens": "Nikdo se dovnitř nedostane tím, že se uvnitř soukromé zóny objeví veřejná.",
+          "costs": "Dvě různá pravidla na tutéž situaci; obchod uvnitř soukromého domu nejde udělat.",
+          "preview": "přístup:     private  >  invited  >  public\nvlastnictví: nejmenší objem, který říká owner"
+        },
+        {
+          "id": "priorita",
+          "label": "Zóna si řekne sama",
+          "desc": "Každá zóna nese číslo priority a rozhoduje nejvyšší.",
+          "opens": "Obchod v domě i soukromý kout v hospodě jdou obojí.",
+          "costs": "Je to číslo, které musí někdo nastavit — u stavby hráčem se to bude hodnotit špatně.",
+          "preview": "kuchyň   priorita 30\nbyt 3A   priorita 20   access invited\npanelák  priorita 10   access public",
+          "depends_on": {
+            "question": "tvar",
+            "not_chosen": [
+              "odvozeny"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "trigger",
+      "header": "síla triggeru",
+      "text": "Co smí trigger udělat, když někdo do zóny vstoupí?",
+      "options": [
+        {
+          "id": "oznami",
+          "label": "Jen oznámí",
+          "desc": "Trigger řekne „někdo sem vstoupil\" a tím končí — vstup neodmítá, stav nemění.",
+          "opens": "Zvonek, uvítání, záznam „tudy šel\". Žádné pořadí ani řetězení.",
+          "costs": "Mýtné ani past z toho nepostavíš.",
+          "preview": "systém zóny v tiku (ADR-130):\n  teď_v = zóny obsahující bod\n  vstoupil = teď_v \\ minule_v   → událost\n  odešel   = minule_v \\ teď_v   → událost"
+        },
+        {
+          "id": "odmitne",
+          "label": "Smí odmítnout vstup",
+          "desc": "Trigger je strážce: mýtné, zákaz vstupu, zavřená hospoda po půlnoci.",
+          "costs": "Chůze (ADR-089) musí umět krok vrátit, a při překryvu se musí říct pořadí.",
+          "rewrites": "ADR-089 dnes vracení kroku nezná.",
+          "preview": "tik:  Anna se posunula o 50 cm\n      → je v zóně „mýtná brána\"\n      → trigger řekne NE\n      → chůze musí krok vrátit"
+        },
+        {
+          "id": "meni",
+          "label": "Smí měnit svět",
+          "desc": "Trigger smí cokoli — vzít peníze, otevřít dveře, přesunout postavičku.",
+          "opens": "Město žije, i když nikdo nehraje (ADR-012).",
+          "costs": "Pořadí, řetězení, cyklus — a spor s ADR-012, protože svět jedná bez modelu.",
+          "preview": "„mýtná brána\":      vstup → strži 5 mincí\n„automatické dveře\": vstup → otevři dveře\n„propadlo\":          vstup → přesuň do sklepa\n                            → spustí trigger sklepa?"
+        }
+      ]
+    },
+    {
+      "id": "capacity",
+      "header": "capacity",
+      "text": "Kde po zrušení Room žije capacity a purpose?",
+      "detail": "Zobrazí se, až bude rozhodnutý tvar zóny.",
+      "depends_on": {
+        "question": "tvar"
+      },
+      "options": [
+        {
+          "id": "zona",
+          "label": "Na zóně",
+          "desc": "Zóna nese purpose, capacity, access i owner."
+        },
+        {
+          "id": "nikde",
+          "label": "Capacity v MVP není",
+          "desc": "Postavičky se podle ADR-092 stejně neblokují.",
+          "costs": "FEAT-BUILDING přijde o pravidlo, které nikdy nikdo nevyzkoušel."
+        }
+      ]
+    },
+    {
+      "id": "poradi",
+      "header": "pořadí triggerů",
+      "text": "V jakém pořadí se spouští překrývající se triggery?",
+      "detail": "Tahle otázka existuje jen tehdy, když trigger smí zasáhnout. Když jen oznamuje, není co řadit.",
+      "depends_on": {
+        "question": "trigger",
+        "chosen": [
+          "odmitne",
+          "meni"
+        ]
+      },
+      "options": [
+        {
+          "id": "odvnejsku",
+          "label": "Od největší zóny k nejmenší",
+          "desc": "Nejdřív pozemek, pak budova, pak byt, nakonec místnost.",
+          "opens": "Obecné pravidlo smí zasáhnout dřív, než se dostane ke slovu to konkrétní.",
+          "costs": "Mýtná brána vybere poplatek i za vstup, který o krok dál stejně někdo odmítne."
+        },
+        {
+          "id": "zevnitr",
+          "label": "Od nejmenší zóny k největší",
+          "desc": "Nejdřív místnost, nakonec pozemek.",
+          "opens": "Nejkonkrétnější pravidlo rozhoduje první, stejně jako u přístupu."
+        },
+        {
+          "id": "nedefinovano",
+          "label": "Pořadí se nezaručuje",
+          "desc": "Triggery se nesmí spoléhat, že běží po sobě.",
+          "costs": "Vylučuje mýtné i cokoli, co závisí na jiném triggeru.",
+          "rewrites": "Nic, ale zužuje to, co trigger vůbec smí dělat."
+        }
+      ]
+    }
+  ],
+  "notes": {},
+  "written": [],
+  "written_by": {}
+}

@@ -13,6 +13,17 @@ Each file is a ready-to-use starting point — copy it into your project root as
 | [CLAUDE-backend-node.md](CLAUDE-backend-node.md) | Fastify + TypeScript + Postgres (Kysely), one file per endpoint |
 | [CLAUDE-react-native.md](CLAUDE-react-native.md) | Expo / React Native + Expo Router + TanStack Query |
 
+## Skills
+
+| Skill | What it does |
+|-------|--------------|
+| [skills/ask](skills/ask/) | Asks you a round of questions in a local browser page that stays open across turns — options with their consequences side by side, diagrams, a sketch pad, and a live channel for Claude to push explanations back in |
+
+Copy a skill folder into a project's `.claude/skills/`, or point at it from your global
+Claude config.
+
+## Templates, continued
+
 `CLAUDE-general.md` is meant to be combined with one of the others: keep it at the repo root and put
 the stack-specific file next to the app it describes (`backend/CLAUDE.md`, `apps/mobile/CLAUDE.md`).
 

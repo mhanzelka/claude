@@ -1,0 +1,3 @@
+ui/node_modules/
+*.tsbuildinfo
+# web/ is the committed build of ui/ — running the tool must not need node.

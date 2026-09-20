@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+/* Palette lives in plain custom properties so one definition flips with the system theme;
+   @theme then exposes it to Tailwind as colour utilities. */
+:root {
+  --c-bg: #fbfaf8;
+  --c-panel: #ffffff;
+  --c-ink: #1d1b18;
+  --c-dim: #6b6660;
+  --c-line: #e2ddd5;
+  --c-accent: #8a5a2b;
+  --c-accent-soft: #f3e9dd;
+  --c-warn: #9a3b2f;
+  --c-ok: #3f6b43;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --c-bg: #171614;
+    --c-panel: #201e1b;
+    --c-ink: #ece7df;
+    --c-dim: #9a938a;
+    --c-line: #35322d;
+    --c-accent: #d9a066;
+    --c-accent-soft: #33291f;
+    --c-warn: #e08573;
+    --c-ok: #8fc095;
+  }
+}
+
+@theme {
+  --color-bg: var(--c-bg);
+  --color-panel: var(--c-panel);
+  --color-ink: var(--c-ink);
+  --color-dim: var(--c-dim);
+  --color-line: var(--c-line);
+  --color-accent: var(--c-accent);
+  --color-accent-soft: var(--c-accent-soft);
+  --color-warn: var(--c-warn);
+  --color-ok: var(--c-ok);
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+@custom-variant selected (&[data-selected="true"]);
+@custom-variant chosen (&[data-chosen="true"]);
+@custom-variant current (&[data-current="true"]);
+@custom-variant done (&[data-status="done"]);
+@custom-variant unclear (&[data-status="unclear"]);
+@custom-variant locked (&[data-status="locked"]);
+
+button,
+[role="button"] {
+  cursor: pointer;
+}
+
+:disabled {
+  cursor: default;
+}
+
+body {
+  background: var(--c-bg);
+  color: var(--c-ink);
+}

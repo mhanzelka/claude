@@ -22,6 +22,20 @@ Each file is a ready-to-use starting point — copy it into your project root as
 Copy a skill folder into a project's `.claude/skills/`, or point at it from your global
 Claude config.
 
+## Spec
+
+| File | What it is |
+|------|------------|
+| [spec/_TEMPLATE.md](spec/_TEMPLATE.md) | The document template for a `SPEC/` tree — one file per feature, architecture piece or decision |
+
+Copy it into a project as `SPEC/_TEMPLATE.md` and keep a router (`SPEC/SPEC.md`) beside it: what is
+not listed there does not exist. The template carries the header fields, the difference between a
+feature and an architecture doc, and the rules that keep a spec honest — the three ways to write
+something that is not decided yet, numbers as promises, silence is not a rejection, and a criterion
+nobody runs is dead text.
+
+Written in Czech, like the specs it describes.
+
 ## Templates, continued
 
 `CLAUDE-general.md` is meant to be combined with one of the others: keep it at the repo root and put

@@ -18,6 +18,7 @@ Each file is a ready-to-use starting point — copy it into your project root as
 | Skill | What it does |
 |-------|--------------|
 | [skills/ask](skills/ask/) | Asks you a round of questions in a local browser page that stays open across turns — options with their consequences side by side, diagrams, a sketch pad, and a live channel for Claude to push explanations back in |
+| [skills/specify](skills/specify/) | Moves a `SPEC/` tree one round further — audits what is missing or unconfirmed, asks you about it through `ask`, and writes the answers up as decision records |
 
 Copy a skill folder into a project's `.claude/skills/`, or point at it from your global
 Claude config.
